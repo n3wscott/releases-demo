@@ -10,10 +10,10 @@ jobs:
     name: semver
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go ${{ matrix.go-version }}
+      - name: Set up Go 1.17.x
         uses: actions/setup-go@v2
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: 1.17.x
 
       - name: Checkout code
         uses: actions/checkout@v2
