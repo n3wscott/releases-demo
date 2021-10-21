@@ -10,11 +10,6 @@ jobs:
     name: semver
     runs-on: ubuntu-latest
     steps:
-      - name: Look at Ref
-        run: |
-          echo ${{ github.ref }}
-          echo $GITHUB_SERVER_URL/${{ github.repository }}.git
-
       - name: Set up Go ${{ matrix.go-version }}
         uses: actions/setup-go@v2
         with:
@@ -22,3 +17,10 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: GO111MODULE=on go get github.com/n3wscott/release-demo/semver@main
+
+      - name: Look at Ref
+        run: |
+          semver $GITHUB_SERVER_URL/${{ github.repository }}.git ${{ github.ref }}
