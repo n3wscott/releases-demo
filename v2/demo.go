@@ -1,34 +1,33 @@
-package v2
+package subcomponent
 
 import (
 	"fmt"
-
-	v1 "github.com/n3wscott/releases-demo"
 )
 
-// Example is an interface at version 2.
+// Example is an interface.
 type Example interface {
-	// Foo sometimes you eat the bar with a name.
-	Foo(string) int
-	// Bar sometimes the bar eats you with a count.
-	Bar(int, string)
-	// Baz returns you the original bull.
-	Baz() v1.Example
+	// Foo sometimes you eat the bar.
+	Foo() int
+	// Bar sometimes the bar eats you.
+	Bar(string)
 }
 
-// Bull implements the v2 Example interface.
-type Bull struct{}
+// Bull implements the v1 Example interface.
+type Bull struct{ Greeting string }
 
-func (b *Bull) Baz() v1.Example {
-	return &v1.Bull{Greeting: "whelp"}
+func (b *Bull) greeting() string {
+	if len(b.Greeting) > 0 {
+		return b.Greeting
+	}
+	return "How you doing there,"
 }
 
-func (b *Bull) Foo(s string) int {
-	return len(s)
+func (b *Bull) Foo() int {
+	return len(b.greeting()) + 42
 }
 
-func (b *Bull) Bar(i int, s string) {
-	fmt.Println(s, i, "times")
+func (b *Bull) Bar(s string) {
+	fmt.Println(b.greeting(), s, "once")
 }
 
 var _ Example = (*Bull)(nil)
