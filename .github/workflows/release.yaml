@@ -34,3 +34,23 @@ jobs:
     steps:
       - name: Did it work
         run: echo Got ${{ needs.semver.outputs.next }}
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          prerelease: false
+
+#      - name: Tag Release ${{ needs.semver.outputs.next }}
+#        uses: actions/github-script@v5
+#        with:
+#          script: |
+#            github.git.createRef({
+#              owner: context.repo.owner,
+#              repo: context.repo.repo,
+#              ref: "refs/tags/${{ needs.semver.outputs.next }}",
+#              sha: context.sha
+#            })
