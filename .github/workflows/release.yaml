@@ -13,6 +13,7 @@ jobs:
       - name: Look at Ref
         run: |
           echo ${{ github.ref }}
+          echo $GITHUB_SERVER_URL/${{ github.repository }}.git
 
       - name: Set up Go ${{ matrix.go-version }}
         uses: actions/setup-go@v2
