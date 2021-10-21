@@ -7,8 +7,9 @@ on:
 
 jobs:
   semver:
-    name: semver
     runs-on: ubuntu-latest
+    outputs:
+      next: ${{ steps.ggsv.outputs.next}}
     steps:
       - name: Set up Go 1.17.x
         uses: actions/setup-go@v2
@@ -22,5 +23,14 @@ jobs:
         run: go install tableflip.dev/ggsv@latest
 
       - name: Look at Ref
+        id: ggsv
         run: |
-          ggsv next-patch $GITHUB_SERVER_URL/${{ github.repository }}.git ${{ github.ref }}
+          NEXT=`ggsv next-patch $GITHUB_SERVER_URL/${{ github.repository }}.git ${{ github.ref }}`
+          echo "::set-output name=next::$NEXT"
+
+  second:
+    runs-on: ubuntu-latest
+    needs: semver
+    steps:
+      - name: Did it work
+        run: echo Got ${{ needs.semver.outputs.next }}
