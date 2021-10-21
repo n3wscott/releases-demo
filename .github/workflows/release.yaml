@@ -19,8 +19,8 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Dependencies
-        run: go install github.com/n3wscott/releases-demo/semver@latest
+        run: go install tableflip.dev/ggsv@latest
 
       - name: Look at Ref
         run: |
-          semver $GITHUB_SERVER_URL/${{ github.repository }}.git ${{ github.ref }}
+          ggsv next-patch $GITHUB_SERVER_URL/${{ github.repository }}.git ${{ github.ref }}
