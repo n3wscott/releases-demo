@@ -1,9 +1,13 @@
 package git
 
 import (
+	"fmt"
+	"github.com/blang/semver/v4"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/storage/memory"
+	"path/filepath"
+	"strings"
 )
 
 // Repo is a simplified git remote, containing only the list of tags, default
@@ -41,4 +45,48 @@ func GetRepo(ref, url string) (*Repo, error) {
 	}
 
 	return repo, nil
+}
+
+// Next will parse ref (git ref, release branch, or version) and inspect
+// the repo for tags that match the go mod release process to find the next
+// patch version.
+func (r *Repo) Next(ref string) (*semver.Version, error) {
+	base := filepath.Base(ref)
+	version := base
+	if strings.HasPrefix(version, "release-") {
+		version = version[len("release-"):]
+	}
+	v, err := semver.ParseTolerant(version)
+	if err != nil {
+		return nil, err
+	}
+	v.Patch = 0
+	v.Pre = nil
+	v.Build = nil
+
+	fam := semver.Versions{}
+	for _, tag := range r.Tags {
+		if !strings.HasPrefix(tag, "v") {
+			continue
+		}
+		tv, err := semver.ParseTolerant(tag[1:])
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse verison in branch: %s, %v", tag, err)
+		}
+		if tv.Major == v.Major && tv.Minor == v.Minor {
+			fam = append(fam, tv)
+		}
+	}
+
+	semver.Sort(fam)
+
+	if len(fam) > 0 {
+		next := fam[len(fam)-1]
+		if err := next.IncrementPatch(); err != nil {
+			return nil, err
+		}
+		return &next, nil
+	} else {
+		return &v, nil
+	}
 }
