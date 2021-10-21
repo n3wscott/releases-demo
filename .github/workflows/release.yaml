@@ -1,0 +1,23 @@
+name: Release Pipeline
+
+on:
+  push:
+    branches:
+      - release-*
+
+jobs:
+  semver:
+    name: semver
+    runs-on: ubuntu-latest
+    steps:
+      - name: Look at Ref
+        run: |
+          echo ${{ github.ref }}
+
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Checkout code
+        uses: actions/checkout@v2
