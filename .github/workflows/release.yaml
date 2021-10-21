@@ -57,7 +57,9 @@ jobs:
 
   first-pass:
     runs-on: ubuntu-latest
-    needs: root
+    needs:
+      - semver
+      - root
     strategy:
       matrix:
         module:
