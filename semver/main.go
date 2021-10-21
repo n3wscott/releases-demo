@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/n3wscott/releases-demo/semver/git"
 	"os"
+
+	"github.com/n3wscott/releases-demo/semver/git"
 )
 
 func main() {
