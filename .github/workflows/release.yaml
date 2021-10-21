@@ -35,13 +35,13 @@ jobs:
       - name: Did it work
         run: echo Got ${{ needs.semver.outputs.next }}
 
-      - name: Create Release
+      - name: Create Release ${{ needs.semver.outputs.next }}
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ needs.semver.outputs.next }}
+          release_name: Release ${{ needs.semver.outputs.next }}
           prerelease: false
 
 #      - name: Tag Release ${{ needs.semver.outputs.next }}
