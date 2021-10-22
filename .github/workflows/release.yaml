@@ -10,6 +10,7 @@ env:
 
 jobs:
   semver:
+    name: Calculate Next Release
     runs-on: ubuntu-latest
     outputs:
       next: ${{ steps.ggsv.outputs.next}}
@@ -29,6 +30,7 @@ jobs:
           echo "::set-output name=next::$NEXT"
 
   root:
+    name: Release ${{ steps.go.outputs.module }}@${{ needs.semver.outputs.next }}
     runs-on: ubuntu-latest
     needs: semver
     env:
@@ -74,20 +76,20 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Module Name
+        working-directory: ${{ matrix.module }}
         run: |
           GOMOD=`go list`
           echo "::set-output name=module::$GOMOD"
 
       - name: Repoint Module
+        working-directory: ${{ matrix.module }}
         env:
           repoint: ${{ needs.root.outputs.module }}
           tag: ${{ needs.semver.outputs.next }}
         run: |
-          pushd ${{ matrix.module }}
           go get -d $repoint@$tag
           go mod edit -dropreplace $repoint
-          popd
-
+          
       - name: Commit Repoint
         run: |
           date > generated.txt
