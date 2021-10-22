@@ -73,24 +73,37 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
+      - name: Module Name
+        run: |
+          GOMOD=`go list`
+          echo "::set-output name=module::$GOMOD"
+
       - name: Repoint Module
         env:
           repoint: ${{ needs.root.outputs.module }}
           tag: ${{ needs.semver.outputs.next }}
         run: |
           pushd ${{ matrix.module }}
-          cat go.mod
-          go mod edit -dropreplace $repoint
           go get -d $repoint@$tag
-          cat go.mod
+          go mod edit -dropreplace $repoint
+          popd
 
-#      - name: Tag Release ${{ needs.semver.outputs.next }}
-#        uses: actions/github-script@v5
-#        with:
-#          script: |
-#            github.git.createRef({
-#              owner: context.repo.owner,
-#              repo: context.repo.repo,
-#              ref: "refs/tags/${{ needs.semver.outputs.next }}",
-#              sha: context.sha
-#            })
+      - name: Commit Repoint
+        run: |
+          date > generated.txt
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Repoint ${{ matrix.module }} to ${{ needs.semver.outputs.next }}."
+          git push
+
+      - name: Tag Module ${{ matrix.module }}@${{ needs.semver.outputs.next }}
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/${{ needs.semver.outputs.next }}",
+              sha: context.sha
+            })
