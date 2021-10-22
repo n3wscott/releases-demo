@@ -44,7 +44,7 @@ jobs:
           prerelease: false
 
   submodules:
-    name: Release Sub-Module
+    name: Release Sub-Modules
     runs-on: ubuntu-latest
     needs:
       - semver
