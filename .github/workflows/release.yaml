@@ -26,8 +26,8 @@ jobs:
           NEXT=`ggsv next-patch $GITHUB_SERVER_URL/${{ github.repository }}.git ${{ github.ref }}`
           echo "::set-output name=next::$NEXT"
 
-  rootmodule:
-    name: Release Root
+  mainmodule:
+    name: Release Main Module
     runs-on: ubuntu-latest
     needs: semver
     steps:
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - semver
-      - rootmodule
+      - mainmodule
     steps:
       - name: Set up Go 1.17.x
         uses: actions/setup-go@v2
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - semver
-      - rootmodule
+      - mainmodule
       - submodules
     steps:
       - name: Set up Go 1.17.x
