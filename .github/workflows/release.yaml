@@ -30,7 +30,7 @@ jobs:
           echo "::set-output name=next::$NEXT"
 
   root:
-    name: Release ${{ steps.go.outputs.module }}@${{ needs.semver.outputs.next }}
+    name: Release Root ${{ env.rootpath }} ${{ needs.semver.outputs.next }}
     runs-on: ubuntu-latest
     needs: semver
     env:
@@ -58,6 +58,7 @@ jobs:
           prerelease: false
 
   first-pass:
+    name: Release Sub-Module ${{ matrix.module }} ${{ needs.semver.outputs.next }}
     runs-on: ubuntu-latest
     needs:
       - semver
@@ -89,7 +90,7 @@ jobs:
         run: |
           go get -d $repoint@$tag
           go mod edit -dropreplace $repoint
-          
+
       - name: Commit Repoint
         run: |
           date > generated.txt
