@@ -64,14 +64,10 @@ jobs:
         run: ./hack/tag-release.sh
 
       - name: Commit Repoint
-        env:
-          tag: ${{ matrix.module }}/${{ needs.semver.outputs.next }}
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add .
-          git commit -m "Repoint modules for release ${{ needs.semver.outputs.next }}."
-          git push
+          git diff-index --quiet HEAD || (git commit -a -m "Repoint modules for release ${{ needs.semver.outputs.next }}." --allow-empty && git push -f)
 
       - name: Tag Modules
         run: ./hack/tag-release.sh --tag --push
@@ -103,6 +99,4 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add .
-          git commit -m "Repoint examples, post release ${{ needs.semver.outputs.next }}."
-          git push
+          git diff-index --quiet HEAD || (git commit -a -m "Repoint examples, post release ${{ needs.semver.outputs.next }}." --allow-empty && git push -f)
