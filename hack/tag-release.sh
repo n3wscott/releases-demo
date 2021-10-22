@@ -39,8 +39,6 @@ REMOTE="origin"   # if checked out directly
 #REMOTE="upstream" # if checked out with a fork
 
 REPOINT=(
-  "github.com/n3wscott/releases-demo/subcomponent/v2"
-  "github.com/n3wscott/releases-demo/finalcomponent/v2"
   "github.com/n3wscott/releases-demo/v2"
 #  "github.com/cloudevents/sdk-go/v2"
 )
@@ -58,7 +56,6 @@ REPOINT_ALL=(
 #  "github.com/cloudevents/sdk-go/binding/format/protobuf/v2"
 #  "github.com/cloudevents/sdk-go/v2"                       # NOTE: this needs to be last.
   "github.com/n3wscott/releases-demo/subcomponent/v2"
-  "github.com/n3wscott/releases-demo/finalcomponent/v2"
   "github.com/n3wscott/releases-demo/v2"
 )
 
