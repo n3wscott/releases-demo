@@ -1,4 +1,4 @@
-module github.com/n3wscott/releases-demo/finalcomponent/v2
+module github.com/n3wscott/releases-demo/samples
 
 go 1.17
 
