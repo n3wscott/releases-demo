@@ -75,7 +75,7 @@ do
         # --samples is used to repoint the dep used for samples to the newly released submodules
         --samples)
         SAMPLES=1
-        REPOINT=REPOINT_ALL
+        REPOINT=$REPOINT_ALL
         shift
         ;;
     esac
