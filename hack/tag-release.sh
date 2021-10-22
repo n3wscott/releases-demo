@@ -14,7 +14,7 @@ fi
 
 MODULES=(
   "subcomponent"
-  "finalcomponent"
+  "samples"
 #  "protocol/amqp"
 #  "protocol/stan"
 #  "protocol/nats"
