@@ -5,11 +5,9 @@ on:
     branches:
       - release-*
 
-env:
-  rootpath: './v2'
-
 jobs:
   semver:
+    name: Calculate Next Release
     runs-on: ubuntu-latest
     outputs:
       next: ${{ steps.ggsv.outputs.next}}
@@ -28,23 +26,13 @@ jobs:
           NEXT=`ggsv next-patch $GITHUB_SERVER_URL/${{ github.repository }}.git ${{ github.ref }}`
           echo "::set-output name=next::$NEXT"
 
-  root:
+  mainmodule:
+    name: Release Main Module
     runs-on: ubuntu-latest
     needs: semver
-    env:
-      corepath: 'go module path...'
-    outputs:
-      module: ${{ steps.go.outputs.module }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-
-      - name: Root Module
-        id: go
-        run: |
-          pushd ${{ env.rootpath }}
-          GOMOD=`go list`
-          echo "::set-output name=module::$GOMOD"
 
       - name: Create Release ${{ needs.semver.outputs.next }}
         uses: actions/create-release@v1
@@ -55,15 +43,14 @@ jobs:
           release_name: Release ${{ needs.semver.outputs.next }}
           prerelease: false
 
-  first-pass:
+  submodules:
+    name: Release Sub-Modules
     runs-on: ubuntu-latest
     needs:
       - semver
-      - root
-    strategy:
-      matrix:
-        module:
-          - subcomponent/v2
+      - mainmodule
+    env:
+      VERSION: ${{ needs.semver.outputs.next }}
     steps:
       - name: Set up Go 1.17.x
         uses: actions/setup-go@v2
@@ -73,24 +60,45 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Repoint Module
-        env:
-          repoint: ${{ needs.root.outputs.module }}
-          tag: ${{ needs.semver.outputs.next }}
+      - name: Update Modules
         run: |
-          pushd ${{ matrix.module }}
-          cat go.mod
-          go mod edit -dropreplace $repoint
-          go get -d $repoint@$tag
-          cat go.mod
+          ./hack/tag-release.sh
+          git status
 
-#      - name: Tag Release ${{ needs.semver.outputs.next }}
-#        uses: actions/github-script@v5
-#        with:
-#          script: |
-#            github.git.createRef({
-#              owner: context.repo.owner,
-#              repo: context.repo.repo,
-#              ref: "refs/tags/${{ needs.semver.outputs.next }}",
-#              sha: context.sha
-#            })
+      - name: Commit Repoint
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git diff-index --quiet HEAD || (git commit -a -m "Repoint modules for release ${{ needs.semver.outputs.next }}." --allow-empty && git push -f)
+
+      - name: Tag Modules
+        run: ./hack/tag-release.sh --tag --push
+
+  examples:
+    name: Update Examples
+    runs-on: ubuntu-latest
+    needs:
+      - semver
+      - mainmodule
+      - submodules
+    env:
+      VERSION: ${{ needs.semver.outputs.next }}
+    steps:
+      - name: Set up Go 1.17.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.x
+
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Update Examples
+        run: ./hack/tag-release.sh --samples
+
+      - name: Commit Repoint
+        env:
+          tag: ${{ matrix.module }}/${{ needs.semver.outputs.next }}
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git diff-index --quiet HEAD || (git commit -a -m "Repoint examples, post release ${{ needs.semver.outputs.next }}." --allow-empty && git push -f)
