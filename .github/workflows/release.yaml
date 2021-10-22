@@ -88,8 +88,11 @@ jobs:
           repoint: ${{ needs.root.outputs.module }}
           tag: ${{ needs.semver.outputs.next }}
         run: |
-          go get -d $repoint@$tag
-          go mod edit -dropreplace $repoint
+          if grep -Fq "$repoint" go.mod
+          then
+            go get -d $repoint@$tag
+            go mod edit -dropreplace $repoint
+          fi
           go mod tidy
 
       - name: Commit Repoint, and Tag
